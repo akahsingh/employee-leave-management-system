@@ -1,9 +1,8 @@
 services:
   - type: web
     name: elms-app
-    runtime: java
-    buildCommand: mvn clean package -DskipTests
-    startCommand: java -Dspring.profiles.active=prod -jar target/employee-leave-management-1.0.0.jar
+    runtime: docker
+    plan: free
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -17,7 +16,6 @@ services:
         fromDatabase:
           name: elms-db
           property: password
-    plan: free
 
 databases:
   - name: elms-db
