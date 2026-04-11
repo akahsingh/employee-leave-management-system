@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Employee Dashboard - ELMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+<body class="app-body">
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-calendar-check"></i><span>ELMS</span></div>
+    <nav class="sidebar-nav">
+        <a href="/employee/dashboard" class="nav-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+        <a href="/employee/leaves" class="nav-item"><i class="fas fa-paper-plane"></i><span>My Leaves</span></a>
+        <a href="/employee/profile" class="nav-item"><i class="fas fa-user"></i><span>My Profile</span></a>
+    </nav>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+</div>
+<div class="main-content" id="mainContent">
+    <div class="topbar">
+        <button class="btn sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="topbar-title">My Dashboard</div>
+        <div class="topbar-right">
+            <span class="badge-role badge-employee-role">EMPLOYEE</span>
+            <span class="topbar-user"><i class="fas fa-user-circle me-1"></i><span th:text="${employee.fullName}"></span></span>
+        </div>
+    </div>
+    <div class="content-area">
+        <div class="welcome-banner">
+            <div>
+                <h4 class="mb-1">Hello, <span th:text="${employee.firstName}">Employee</span>! 👋</h4>
+                <p class="mb-0 opacity-75" th:text="${employee.designation + ' - ' + (employee.department != null ? employee.department.name : 'N/A')}"></p>
+            </div>
+            <a href="/employee/leaves" class="btn btn-light btn-sm"><i class="fas fa-plus me-2"></i>Apply Leave</a>
+        </div>
+
+        <!-- Leave Balances -->
+        <h5 class="mb-3 fw-bold"><i class="fas fa-wallet me-2 text-purple"></i>Leave Balances</h5>
+        <div class="row g-3 mb-4">
+            <div th:each="balance : ${leaveBalances}" class="col-md-4 col-sm-6">
+                <div class="leave-balance-card">
+                    <div class="balance-header" th:text="${balance.leaveType.name}"></div>
+                    <div class="balance-body">
+                        <div class="balance-numbers">
+                            <div class="balance-item">
+                                <span class="balance-val text-success" th:text="${balance.remainingDays}"></span>
+                                <span class="balance-lbl">Available</span>
+                            </div>
+                            <div class="balance-divider"></div>
+                            <div class="balance-item">
+                                <span class="balance-val text-warning" th:text="${balance.usedDays}"></span>
+                                <span class="balance-lbl">Used</span>
+                            </div>
+                            <div class="balance-divider"></div>
+                            <div class="balance-item">
+                                <span class="balance-val text-primary" th:text="${balance.totalDays}"></span>
+                                <span class="balance-lbl">Total</span>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height:6px;">
+                            <div class="progress-bar bg-gradient-purple"
+                                 th:style="${'width:' + (balance.totalDays > 0 ? (balance.usedDays * 100 / balance.totalDays) : 0) + '%'}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card stat-orange">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-number" th:text="${pendingCount}">0</div>
+                        <div class="stat-label">Pending Requests</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Leaves -->
+        <div class="card-custom">
+            <div class="card-custom-header">
+                <h5><i class="fas fa-history me-2 text-info"></i>Recent Leave Requests</h5>
+                <a href="/employee/leaves" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-custom-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-vibrant mb-0">
+                        <thead>
+                            <tr><th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="req : ${recentLeaves}">
+                                <td th:text="${req.leaveType.name}"></td>
+                                <td th:text="${req.startDate}"></td>
+                                <td th:text="${req.endDate}"></td>
+                                <td><span class="badge bg-secondary" th:text="${req.totalDays} + ' days'"></span></td>
+                                <td>
+                                    <span th:class="${'status-badge status-' + req.status.name().toLowerCase()}"
+                                          th:text="${req.status}"></span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(recentLeaves)}">
+                                <td colspan="5" class="text-center text-muted py-4">No leave requests yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Leaves - ELMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+<body class="app-body">
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-calendar-check"></i><span>ELMS</span></div>
+    <nav class="sidebar-nav">
+        <a href="/employee/dashboard" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+        <a href="/employee/leaves" class="nav-item active"><i class="fas fa-calendar-alt"></i><span>My Leaves</span></a>
+        <a href="/employee/profile" class="nav-item"><i class="fas fa-user"></i><span>My Profile</span></a>
+    </nav>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+</div>
+
+<div class="main-content" id="mainContent">
+    <div class="topbar">
+        <button class="btn sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="topbar-title">My Leave Requests</div>
+        <div class="topbar-right">
+            <span class="badge-role badge-employee-role">EMPLOYEE</span>
+            <span class="topbar-user"><i class="fas fa-user-circle me-1"></i>
+                <span th:text="${employee.fullName}">Employee</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle me-2"></i><span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Leave Balance Cards -->
+        <div class="row g-3 mb-4">
+            <div th:each="balance : ${leaveBalances}" class="col-xl-2 col-md-4 col-6">
+                <div class="balance-card">
+                    <div class="balance-label" th:text="${balance.leaveType.name}"></div>
+                    <div class="balance-number" th:text="${balance.remainingDays}"></div>
+                    <div class="balance-sub">of <span th:text="${balance.totalDays}"></span> days left</div>
+                    <div class="balance-bar">
+                        <div class="balance-fill"
+                             th:style="'width:' + (${balance.totalDays} > 0 ? (${balance.remainingDays} * 100 / ${balance.totalDays}) : 0) + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Apply Leave Form -->
+            <div class="col-md-4">
+                <div class="card-custom">
+                    <div class="card-custom-header">
+                        <h5><i class="fas fa-plus-circle me-2 text-green"></i>Apply for Leave</h5>
+                    </div>
+                    <div class="card-custom-body">
+                        <form th:action="@{/employee/leaves/apply}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Leave Type *</label>
+                                <select name="leaveTypeId" class="form-select form-select-vibrant" required>
+                                    <option value="">-- Select Leave Type --</option>
+                                    <option th:each="lt : ${leaveTypes}" th:value="${lt.id}" th:text="${lt.name}"></option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Start Date *</label>
+                                <input type="date" name="startDate" class="form-control form-control-vibrant"
+                                       th:min="${today}" required/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">End Date *</label>
+                                <input type="date" name="endDate" class="form-control form-control-vibrant"
+                                       th:min="${today}" required/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Reason *</label>
+                                <textarea name="reason" class="form-control form-control-vibrant" rows="3"
+                                          required placeholder="Briefly describe the reason..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-vibrant-green w-100">
+                                <i class="fas fa-paper-plane me-2"></i>Apply Leave
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave History -->
+            <div class="col-md-8">
+                <div class="card-custom">
+                    <div class="card-custom-header">
+                        <h5><i class="fas fa-history me-2 text-purple"></i>My Leave History</h5>
+                    </div>
+                    <div class="card-custom-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-vibrant mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Leave Type</th>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Days</th>
+                                        <th>Status</th>
+                                        <th>Comments</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="req, i : ${leaveRequests}">
+                                        <td th:text="${i.count}"></td>
+                                        <td th:text="${req.leaveType.name}"></td>
+                                        <td th:text="${req.startDate}"></td>
+                                        <td th:text="${req.endDate}"></td>
+                                        <td><span class="badge bg-secondary" th:text="${req.totalDays} + ' d'"></span></td>
+                                        <td>
+                                            <span th:class="${'status-badge status-' + req.status.name().toLowerCase()}"
+                                                  th:text="${req.status}"></span>
+                                        </td>
+                                        <td th:text="${req.reviewerComments != null ? req.reviewerComments : '-'}"></td>
+                                        <td>
+                                            <form th:if="${req.status.name() == 'PENDING'}"
+                                                  th:action="@{/employee/leaves/cancel/{id}(id=${req.id})}" method="post" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-vibrant-orange"
+                                                        onclick="return confirm('Cancel this leave request?')">
+                                                    <i class="fas fa-times"></i> Cancel
+                                                </button>
+                                            </form>
+                                            <span th:unless="${req.status.name() == 'PENDING'}" class="text-muted small">—</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(leaveRequests)}">
+                                        <td colspan="8" class="text-center text-muted py-4">No leave requests found. Apply your first leave!</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

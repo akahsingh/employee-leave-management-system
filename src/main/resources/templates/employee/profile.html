@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>My Profile - ELMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="/css/style.css" rel="stylesheet"/>
+</head>
+<body class="app-body">
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><i class="fas fa-calendar-check"></i><span>ELMS</span></div>
+    <nav class="sidebar-nav">
+        <a href="/employee/dashboard" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+        <a href="/employee/leaves" class="nav-item"><i class="fas fa-calendar-alt"></i><span>My Leaves</span></a>
+        <a href="/employee/profile" class="nav-item active"><i class="fas fa-user"></i><span>My Profile</span></a>
+    </nav>
+    <div class="sidebar-footer"><a href="/logout" class="nav-item text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+</div>
+
+<div class="main-content" id="mainContent">
+    <div class="topbar">
+        <button class="btn sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="topbar-title">My Profile</div>
+        <div class="topbar-right">
+            <span class="badge-role badge-employee-role">EMPLOYEE</span>
+            <span class="topbar-user"><i class="fas fa-user-circle me-1"></i>
+                <span th:text="${employee.fullName}">Employee</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="row g-4">
+            <!-- Profile Card -->
+            <div class="col-md-4">
+                <div class="card-custom text-center">
+                    <div class="card-custom-body py-4">
+                        <div class="profile-avatar mx-auto mb-3">
+                            <span th:text="${#strings.substring(employee.firstName,0,1) + #strings.substring(employee.lastName,0,1)}"></span>
+                        </div>
+                        <h4 class="fw-bold mb-1" th:text="${employee.fullName}"></h4>
+                        <p class="text-muted mb-1" th:text="${employee.designation}"></p>
+                        <span class="badge bg-primary" th:text="${employee.department != null ? employee.department.name : 'No Department'}"></span>
+                        <hr/>
+                        <div class="text-start">
+                            <div class="profile-info-row">
+                                <i class="fas fa-id-badge text-purple"></i>
+                                <span th:text="${employee.employeeCode}"></span>
+                            </div>
+                            <div class="profile-info-row">
+                                <i class="fas fa-envelope text-blue"></i>
+                                <span th:text="${employee.email}"></span>
+                            </div>
+                            <div class="profile-info-row">
+                                <i class="fas fa-phone text-green"></i>
+                                <span th:text="${employee.phone != null ? employee.phone : 'N/A'}"></span>
+                            </div>
+                            <div class="profile-info-row">
+                                <i class="fas fa-calendar text-orange"></i>
+                                <span th:text="'Joined: ' + ${employee.joiningDate}"></span>
+                            </div>
+                            <div class="profile-info-row" th:if="${employee.manager != null}">
+                                <i class="fas fa-user-tie text-teal"></i>
+                                <span th:text="'Manager: ' + ${employee.manager.fullName}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Balances -->
+            <div class="col-md-8">
+                <div class="card-custom">
+                    <div class="card-custom-header">
+                        <h5><i class="fas fa-chart-bar me-2 text-purple"></i>Leave Balance Summary</h5>
+                    </div>
+                    <div class="card-custom-body">
+                        <div class="row g-3">
+                            <div th:each="balance : ${leaveBalances}" class="col-md-6">
+                                <div class="balance-detail-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold" th:text="${balance.leaveType.name}"></span>
+                                        <span class="badge bg-primary" th:text="${balance.year}"></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between text-sm mb-1">
+                                        <span class="text-muted">Total: <strong th:text="${balance.totalDays}"></strong></span>
+                                        <span class="text-warning">Used: <strong th:text="${balance.usedDays}"></strong></span>
+                                        <span class="text-success">Left: <strong th:text="${balance.remainingDays}"></strong></span>
+                                    </div>
+                                    <div class="progress" style="height:8px; border-radius:10px;">
+                                        <div class="progress-bar bg-gradient-purple"
+                                             th:style="'width:' + (${balance.totalDays} > 0 ? (${balance.usedDays} * 100 / ${balance.totalDays}) : 0) + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>
