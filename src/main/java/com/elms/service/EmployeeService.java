@@ -139,4 +139,8 @@ public class EmployeeService {
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
+
+    public Employee save(Employee employee) {
+        return employeeRepository.save(employee);
+    }
 }

@@ -96,4 +96,23 @@ public class EmployeeController {
         model.addAttribute("leaveBalances", leaveService.getLeaveBalances(employee));
         return "employee/profile";
     }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@AuthenticationPrincipal UserDetails userDetails,
+                                 @RequestParam String firstName,
+                                 @RequestParam String lastName,
+                                 @RequestParam String phone,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            Employee employee = getCurrentEmployee(userDetails);
+            employee.setFirstName(firstName);
+            employee.setLastName(lastName);
+            employee.setPhone(phone);
+            employeeService.save(employee);
+            redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+        }
+        return "redirect:/employee/profile";
+    }
 }
