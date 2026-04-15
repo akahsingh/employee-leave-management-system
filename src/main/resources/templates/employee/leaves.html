@@ -130,7 +130,7 @@
                                         <td><span class="badge bg-secondary" th:text="${req.totalDays} + ' d'"></span></td>
                                         <td>
                                             <span th:title="${req.reason}"
-                                                  th:text="${#strings.length(req.reason) > 20 ? #strings.substring(req.reason,0,20) + '...' : req.reason}"></span>
+                                                  th:text="${req.reason != null ? (#strings.length(req.reason) > 20 ? #strings.substring(req.reason,0,20) + '...' : req.reason) : '—'}"></span>
                                         </td>
                                         <td>
                                             <span th:class="${'status-badge status-' + req.status.name().toLowerCase()}"
@@ -192,6 +192,7 @@
                     <i class="fas fa-arrow-left me-1"></i>Keep It
                 </button>
                 <form id="cancelLeaveForm" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                     <button type="submit" class="btn btn-vibrant-orange">
                         <i class="fas fa-times-circle me-1"></i>Yes, Cancel
                     </button>

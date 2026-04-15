@@ -64,7 +64,7 @@
                                 <td th:text="${req.startDate}"></td>
                                 <td th:text="${req.endDate}"></td>
                                 <td><span class="badge bg-secondary" th:text="${req.totalDays} + ' days'"></span></td>
-                                <td><small th:text="${#strings.abbreviate(req.reason, 40)}"></small></td>
+                                <td><small th:text="${req.reason != null ? #strings.abbreviate(req.reason, 40) : '—'}"></small></td>
                                 <td>
                                     <span th:class="${'status-badge status-' + req.status.name().toLowerCase()}"
                                           th:text="${req.status}"></span>
@@ -106,6 +106,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="approveForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <div class="modal-body">
                     <p>Approving leave for: <strong id="approveEmpName"></strong></p>
                     <p>Leave Type: <strong id="approveLeaveType"></strong> &nbsp;|&nbsp; Days: <strong id="approveDays"></strong></p>
@@ -133,6 +134,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="rejectForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <div class="modal-body">
                     <p>Rejecting leave for: <strong id="rejectEmpName"></strong></p>
                     <input type="hidden" name="action" value="reject"/>
