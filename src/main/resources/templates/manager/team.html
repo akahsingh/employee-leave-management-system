@@ -1,63 +1,74 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>My Team - ELMS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-    <link href="/css/style.css" rel="stylesheet"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Team — ELMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/css/style.css" rel="stylesheet"/>
 </head>
 <body class="app-body">
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-brand"><i class="fas fa-calendar-check"></i><span>ELMS</span></div>
-    <nav class="sidebar-nav">
-        <a href="/manager/dashboard" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-        <a href="/manager/leaves" class="nav-item"><i class="fas fa-calendar-check"></i><span>Leave Requests</span></a>
-        <a href="/manager/team" class="nav-item active"><i class="fas fa-users"></i><span>My Team</span></a>
-        <a href="/employee/leaves" class="nav-item"><i class="fas fa-paper-plane"></i><span>My Leaves</span></a>
-        <a href="/employee/profile" class="nav-item"><i class="fas fa-user"></i><span>My Profile</span></a>
-    </nav>
-    <div class="sidebar-footer"><a href="/logout" class="nav-item text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-calendar-check"></i></div>
+    <div><div class="brand-text">ELMS</div><div class="brand-sub">Leave Management</div></div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Main</div>
+    <a href="/manager/dashboard" class="nav-link"><i class="fas fa-grid-2"></i><span>Dashboard</span></a>
+    <a href="/manager/leaves" class="nav-link"><i class="fas fa-calendar-check"></i><span>Leave Requests</span></a>
+    <a href="/manager/team" class="nav-link active"><i class="fas fa-users"></i><span>My Team</span></a>
+    <div class="sidebar-section">My Account</div>
+    <a href="/employee/leaves" class="nav-link"><i class="fas fa-paper-plane"></i><span>My Leaves</span></a>
+    <a href="/employee/profile" class="nav-link"><i class="fas fa-user"></i><span>My Profile</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/logout" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+  </div>
 </div>
+
 <div class="main-content" id="mainContent">
-    <div class="topbar">
-        <button class="btn sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <div class="topbar-title">My Team</div>
-        <div class="topbar-right">
-            <span class="badge-role badge-manager-role">MANAGER</span>
-            <span class="topbar-user"><i class="fas fa-user-circle me-1"></i><span th:text="${manager.fullName}"></span></span>
-        </div>
+  <div class="topbar">
+    <button class="topbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="topbar-title">My Team</div>
+    <div class="topbar-right">
+      <span class="role-pill role-manager"><i class="fas fa-user-tie me-1"></i>Manager</span>
+      <div class="topbar-avatar" th:text="${#strings.substring(manager.firstName,0,1)}">M</div>
     </div>
-    <div class="content-area">
-        <div class="row g-4">
-            <th:block th:each="member : ${team}">
-            <div class="col-md-4">
-                <div class="employee-card">
-                    <div class="emp-avatar">
-                        <span th:text="${#strings.substring(member.firstName,0,1) + #strings.substring(member.lastName,0,1)}"></span>
-                    </div>
-                    <div class="emp-info">
-                        <h6 class="emp-name" th:text="${member.fullName}"></h6>
-                        <p class="emp-designation" th:text="${member.designation}"></p>
-                        <p class="emp-email"><i class="fas fa-envelope me-1"></i><span th:text="${member.email}"></span></p>
-                        <p class="emp-dept" th:if="${member.department != null}">
-                            <i class="fas fa-building me-1"></i><span th:text="${member.department.name}"></span>
-                        </p>
-                        <span th:if="${member.active}" class="status-badge status-approved">Active</span>
-                        <span th:unless="${member.active}" class="status-badge status-rejected">Inactive</span>
-                    </div>
-                </div>
+  </div>
+
+  <div class="content-area">
+    <div class="row g-4">
+      <th:block th:each="member : ${team}">
+        <div class="col-xl-3 col-md-4 col-sm-6">
+          <div class="team-card">
+            <div class="team-av"
+                 th:text="${#strings.substring(member.firstName,0,1) + #strings.substring(member.lastName,0,1)}"></div>
+            <h6 class="team-name" th:text="${member.fullName}"></h6>
+            <p class="team-role" th:text="${member.designation}"></p>
+            <div class="team-meta">
+              <div><i class="fas fa-envelope"></i><span th:text="${member.email}"></span></div>
+              <div th:if="${member.department != null}"><i class="fas fa-building"></i><span th:text="${member.department.name}"></span></div>
+              <div><i class="fas fa-id-badge"></i><span th:text="${member.employeeCode}"></span></div>
             </div>
-            </th:block>
-            <div th:if="${#lists.isEmpty(team)}" class="col-12">
-                <div class="card-custom text-center py-5">
-                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">No team members assigned yet.</p>
-                </div>
+            <div class="mt-2">
+              <span th:if="${member.active}" class="sbadge approved">Active</span>
+              <span th:unless="${member.active}" class="sbadge cancelled">Inactive</span>
             </div>
+          </div>
         </div>
+      </th:block>
+      <div th:if="${#lists.isEmpty(team)}" class="col-12">
+        <div class="card-glass text-center" style="padding:4rem 2rem;">
+          <i class="fas fa-users fa-3x mb-3" style="color:#cbd5e1;"></i>
+          <p class="text-muted mb-0">No team members assigned yet.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
 </body>

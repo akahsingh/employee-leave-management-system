@@ -1,131 +1,142 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Manager Dashboard - ELMS</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-    <link href="/css/style.css" rel="stylesheet"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Manager Dashboard — ELMS</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/css/style.css" rel="stylesheet"/>
 </head>
 <body class="app-body">
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-brand"><i class="fas fa-calendar-check"></i><span>ELMS</span></div>
-    <nav class="sidebar-nav">
-        <a href="/manager/dashboard" class="nav-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
-        <a href="/manager/leaves" class="nav-item"><i class="fas fa-calendar-check"></i><span>Leave Requests</span></a>
-        <a href="/manager/team" class="nav-item"><i class="fas fa-users"></i><span>My Team</span></a>
-        <a href="/employee/leaves" class="nav-item"><i class="fas fa-paper-plane"></i><span>My Leaves</span></a>
-        <a href="/employee/profile" class="nav-item"><i class="fas fa-user"></i><span>My Profile</span></a>
-    </nav>
-    <div class="sidebar-footer"><a href="/logout" class="nav-item text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fas fa-calendar-check"></i></div>
+    <div><div class="brand-text">ELMS</div><div class="brand-sub">Leave Management</div></div>
+  </div>
+  <div class="sidebar-divider"></div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-section">Main</div>
+    <a href="/manager/dashboard" class="nav-link active"><i class="fas fa-grid-2"></i><span>Dashboard</span></a>
+    <a href="/manager/leaves" class="nav-link"><i class="fas fa-calendar-check"></i><span>Leave Requests</span></a>
+    <a href="/manager/team" class="nav-link"><i class="fas fa-users"></i><span>My Team</span></a>
+    <div class="sidebar-section">My Account</div>
+    <a href="/employee/leaves" class="nav-link"><i class="fas fa-paper-plane"></i><span>My Leaves</span></a>
+    <a href="/employee/profile" class="nav-link"><i class="fas fa-user"></i><span>My Profile</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="/logout" class="nav-link nav-logout"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+  </div>
 </div>
+
 <div class="main-content" id="mainContent">
-    <div class="topbar">
-        <button class="btn sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-        <div class="topbar-title">Manager Dashboard</div>
-        <div class="topbar-right">
-            <span class="badge-role badge-manager-role">MANAGER</span>
-            <span class="topbar-user"><i class="fas fa-user-circle me-1"></i>
-                <span th:text="${manager.fullName}">Manager</span>
-            </span>
-        </div>
+  <div class="topbar">
+    <button class="topbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <span class="role-pill role-manager"><i class="fas fa-user-tie me-1"></i>Manager</span>
+      <div class="topbar-avatar" th:text="${#strings.substring(manager.firstName,0,1)}">M</div>
     </div>
-    <div class="content-area">
-        <div class="welcome-banner">
-            <div>
-                <h4 class="mb-1">Welcome back, <span th:text="${manager.firstName}">Manager</span>! 👋</h4>
-                <p class="mb-0 opacity-75" th:text="${manager.designation + ' - ' + (manager.department != null ? manager.department.name : 'N/A')}"></p>
-            </div>
-        </div>
+  </div>
 
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="stat-card stat-blue">
-                    <div class="stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-number" th:text="${teamSize}">0</div>
-                        <div class="stat-label">Team Members</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card stat-orange">
-                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-number" th:text="${pendingLeaves}">0</div>
-                        <div class="stat-label">Pending Approvals</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card stat-green">
-                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                    <div class="stat-info">
-                        <div class="stat-number" th:text="${#lists.size(recentRequests)}">0</div>
-                        <div class="stat-label">Recent Requests</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4 mb-4">
-            <div class="col-12">
-                <div class="card-custom">
-                    <div class="card-custom-header"><h5><i class="fas fa-bolt me-2 text-warning"></i>Quick Actions</h5></div>
-                    <div class="card-custom-body">
-                        <div class="d-flex flex-wrap gap-3">
-                            <a href="/manager/leaves?filter=pending" class="btn btn-vibrant-orange">
-                                <i class="fas fa-clock me-2"></i>Review Pending Leaves
-                            </a>
-                            <a href="/manager/team" class="btn btn-vibrant-blue">
-                                <i class="fas fa-users me-2"></i>View My Team
-                            </a>
-                            <a href="/employee/leaves" class="btn btn-vibrant-green">
-                                <i class="fas fa-paper-plane me-2"></i>Apply My Leave
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card-custom">
-            <div class="card-custom-header">
-                <h5><i class="fas fa-history me-2 text-info"></i>Recent Leave Requests</h5>
-                <a href="/manager/leaves" class="btn btn-sm btn-outline-primary">View All</a>
-            </div>
-            <div class="card-custom-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-vibrant mb-0">
-                        <thead>
-                            <tr><th>Employee</th><th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Action</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="req : ${recentRequests}">
-                                <td class="fw-semibold" th:text="${req.employee.fullName}"></td>
-                                <td th:text="${req.leaveType.name}"></td>
-                                <td th:text="${req.startDate}"></td>
-                                <td th:text="${req.endDate}"></td>
-                                <td><span class="badge bg-secondary" th:text="${req.totalDays} + ' days'"></span></td>
-                                <td>
-                                    <span th:class="${'status-badge status-' + req.status.name().toLowerCase()}"
-                                          th:text="${req.status}"></span>
-                                </td>
-                                <td>
-                                    <a th:if="${req.status.name() == 'PENDING'}" href="/manager/leaves" class="btn btn-sm btn-vibrant-orange">Review</a>
-                                    <span th:unless="${req.status.name() == 'PENDING'}" class="text-muted">-</span>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(recentRequests)}">
-                                <td colspan="7" class="text-center text-muted py-4">No leave requests yet.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+  <div class="content-area">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner mb-4">
+      <div>
+        <h4 class="mb-1">Welcome back, <span th:text="${manager.firstName}">Manager</span>!</h4>
+        <p class="mb-0 opacity-75" th:text="${manager.designation + ' — ' + (manager.department != null ? manager.department.name : 'N/A')}"></p>
+      </div>
+      <a href="/manager/leaves?filter=pending" class="btn-warning"><i class="fas fa-clock"></i>Pending Reviews</a>
     </div>
+
+    <!-- Stats -->
+    <div class="row g-4 mb-4">
+      <div class="col-xl-4 col-md-6">
+        <div class="stat-card s-blue">
+          <div class="stat-icon-wrap"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="stat-val" th:text="${teamSize}">0</div>
+            <div class="stat-lbl">Team Members</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="stat-card s-orange">
+          <div class="stat-icon-wrap"><i class="fas fa-hourglass-half"></i></div>
+          <div>
+            <div class="stat-val" th:text="${pendingLeaves}">0</div>
+            <div class="stat-lbl">Pending Approvals</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="stat-card s-green">
+          <div class="stat-icon-wrap"><i class="fas fa-check-circle"></i></div>
+          <div>
+            <div class="stat-val" th:text="${#lists.size(recentRequests)}">0</div>
+            <div class="stat-lbl">Recent Requests</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card-glass mb-4">
+      <div class="card-head">
+        <h5><span class="icon" style="background:#fef3c7;color:#d97706;"><i class="fas fa-bolt"></i></span>Quick Actions</h5>
+      </div>
+      <div class="card-body" style="padding:1.25rem 1.5rem;">
+        <div class="d-flex flex-wrap gap-3">
+          <a href="/manager/leaves?filter=pending" class="btn-warning"><i class="fas fa-clock"></i>Review Pending</a>
+          <a href="/manager/team" class="btn-primary"><i class="fas fa-users"></i>View My Team</a>
+          <a href="/employee/leaves" class="btn-success"><i class="fas fa-paper-plane"></i>Apply My Leave</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Leave Requests -->
+    <div class="card-glass">
+      <div class="card-head">
+        <h5><span class="icon" style="background:#ede9fe;color:#7c3aed;"><i class="fas fa-history"></i></span>Recent Leave Requests</h5>
+        <a href="/manager/leaves" class="btn-outline" style="padding:6px 14px;font-size:.8rem;">View All</a>
+      </div>
+      <div class="card-body p0">
+        <div class="table-responsive">
+          <table class="tbl">
+            <thead>
+              <tr><th>Employee</th><th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              <tr th:each="req : ${recentRequests}">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="team-av" style="width:32px;height:32px;border-radius:8px;font-size:.75rem;"
+                         th:text="${#strings.substring(req.employee.firstName,0,1)+#strings.substring(req.employee.lastName,0,1)}"></div>
+                    <span class="fw-600" th:text="${req.employee.fullName}"></span>
+                  </div>
+                </td>
+                <td th:text="${req.leaveType.name}"></td>
+                <td th:text="${req.startDate}"></td>
+                <td th:text="${req.endDate}"></td>
+                <td><span class="badge bg-light text-dark border" th:text="${req.totalDays}+'d'"></span></td>
+                <td>
+                  <span th:class="${'sbadge ' + req.status.name().toLowerCase()}" th:text="${req.status}"></span>
+                </td>
+                <td>
+                  <a th:if="${req.status.name() == 'PENDING'}" href="/manager/leaves" class="btn-warning" style="padding:4px 10px;font-size:.78rem;">Review</a>
+                  <span th:unless="${req.status.name() == 'PENDING'}" class="text-muted">—</span>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(recentRequests)}">
+                <td colspan="7" class="text-center text-muted py-5">No leave requests yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/main.js"></script>
 </body>
